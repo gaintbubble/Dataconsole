@@ -1,0 +1,74 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  // URL is completely removed for Prisma 7 (It uses prisma.config.ts instead)
+}
+
+// ------------------------------------------------------
+// MAIN PATIENT RECORDS (Used by Database & Result Bank Pages)
+// ------------------------------------------------------
+model PatientRecord {
+  id            String   @id @default(cuid())
+  slNo          String?
+  umrNo         String?
+  patientName   String?
+  age           String?
+  gender        String?
+  admnNo        String?
+  billNo        String?
+  parameterName String?
+  resultValue   String?
+  department    String?
+  // Custom columns mapped from your Excel files
+  isOd          String?
+  ward          String?
+  resultDate    String?
+  // For the stripped date in the Result Bank
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+// ------------------------------------------------------
+// ADMISSIONS TABLE (Used by your Admissions API/Page)
+// ------------------------------------------------------
+model Admission {
+  id            String   @id @default(cuid())
+  
+  // Made admnNo unique because your API uses `skipDuplicates: true`
+  admnNo        String   @unique 
+  
+  umrNo         String?
+  patientName   String?
+  department    String?
+  ward          String?
+  status        String?
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+// ------------------------------------------------------
+// SHORT NAME TRANSLATION DICTIONARY
+// ------------------------------------------------------
+model MappingDictionary {
+  id           String   @id @default(cuid())
+  category     String   // e.g., "Parameter", "Ward", "Result"
+  originalName String   // The exact text from the Excel file
+  shortName    String   // What you want it to change to
+
+  // Links a parameter to a Lab Department
+  department   String?  
+  
+  // NEW: Department-wise print sequence (1, 2, 3...)
+  sequence     Int?     
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Ensures we don't accidentally create exact duplicates
+  @@unique([category, originalName]) 
+}
