@@ -1,16 +1,16 @@
 import { defineConfig } from "@prisma/config";
 import "dotenv/config";
 
-const databaseUrl = process.env.DATABASE_URL;
+const directUrl = process.env.DIRECT_URL;
 
-if (!databaseUrl) {
+if (!directUrl) {
   throw new Error(
-    "❌ DATABASE_URL not found. Please check your .env file."
+    "❌ DIRECT_URL not found. Please check your .env file."
   );
 }
 
 export default defineConfig({
   datasource: {
-    url: databaseUrl,
+    url: directUrl,
   },
 });
