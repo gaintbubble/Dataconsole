@@ -4,7 +4,6 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  // URL is completely removed for Prisma 7 (It uses prisma.config.ts instead)
 }
 
 // ------------------------------------------------------
@@ -22,12 +21,13 @@ model PatientRecord {
   parameterName String?
   resultValue   String?
   department    String?
+
   // Custom columns mapped from your Excel files
   isOd          String?
   ward          String?
   resultDate    String?
+  
   // For the stripped date in the Result Bank
-
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 }
@@ -64,8 +64,8 @@ model MappingDictionary {
   department   String?  
   
   // NEW: Department-wise print sequence (1, 2, 3...)
-  sequence     Int?     
-
+  sequence     Int?
+  
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
