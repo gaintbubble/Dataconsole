@@ -1,71 +1,69 @@
 "use client";
 
+import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { signOut } from "next-auth/react";
+import { 
+   Database, 
+   Printer, 
+   Layers, 
+   BookOpen, 
+   LogOut, 
+   Activity 
+} from "lucide-react";
 
 export default function Sidebar() {
-  const pathname = usePathname(); // This detects exactly which page you are on
+  const pathname = usePathname();
 
-  // A clean array of your modules to easily map through them
-  const navLinks = [
-    { name: "Merge Dashboard", path: "/" },
-    { name: "Result Bank", path: "/result-bank" },
-    { name: "Admissions", path: "/admissions" },
-    { name: "Database Ingestion", path: "/database" },
-    { name: "Dictionary Rules", path: "/short-names" },
-    { name: "Print Box", path: "/print-box" },
+  const navItems = [
+    { name: "Database", href: "/database", icon: Database },
+    { name: "Result Bank", href: "/result-bank", icon: Layers },
+    { name: "Print Box", href: "/print-box", icon: Printer },
+    { name: "Dictionary Rules", href: "/short-names", icon: BookOpen },
   ];
 
   return (
-    // WIDTH REDUCED: Changed from w-48 to w-36 (144px)
-    <aside className="w-36 bg-blue-950 flex flex-col py-4 border-r border-blue-900 z-20 shrink-0">
-      
-      {/* Logo Area */}
-      <div className="px-3 mb-6">
-        <div className="w-full bg-teal-600 rounded py-1.5 flex items-center justify-center shadow-sm text-white font-bold text-[11px] tracking-wide">
-          DataConsole
-        </div>
+    <div className="w-48 bg-slate-900 text-slate-300 flex flex-col h-full shadow-lg">
+      {/* Brand Header */}
+      <div className="p-4 border-b border-slate-700/50 flex items-center space-x-2 bg-slate-950">
+        <Activity className="h-5 w-5 text-teal-500 shrink-0" />
+        <span className="font-bold text-slate-100 tracking-wide text-sm truncate">MedParser OS</span>
       </div>
 
       {/* Navigation Links */}
-      <nav className="flex-1 flex flex-col space-y-1 w-full px-2">
-        {navLinks.map((link) => {
-          const isActive = pathname === link.path;
+      <nav className="flex-1 py-4 flex flex-col gap-1 px-2 overflow-y-auto">
+        {navItems.map((item) => {
+          const isActive = pathname === item.href;
+          const Icon = item.icon;
           
           return (
             <Link
-              key={link.path}
-              href={link.path}
-              className={`flex items-center px-3 py-2 rounded transition-all border-l-2 ${
-                isActive
-                  // ACTIVE STATE: Deep highlight with teal text and a left teal border
-                  ? "bg-blue-900 text-teal-300 border-teal-400 shadow-sm"
-                  // INACTIVE/HOVER STATE: Muted text, lights up white on hover
-                  : "text-blue-300/70 border-transparent hover:bg-blue-900/50 hover:text-white"
+              key={item.name}
+              href={item.href}
+              className={`flex items-center space-x-3 px-3 py-2 rounded-md text-[11px] font-medium transition-colors ${
+                isActive 
+                   ? "bg-blue-600/20 text-blue-400 border border-blue-500/30" 
+                   : "hover:bg-slate-800 hover:text-slate-100"
               }`}
             >
-              {/* FONT REDUCED: Using text-[10px] */}
-              <span className={`text-[10px] tracking-wide ${isActive ? 'font-bold' : 'font-medium'}`}>
-                {link.name}
-              </span>
+              <Icon className={`h-4 w-4 shrink-0 ${isActive ? "text-blue-400" : "text-slate-400"}`} />
+              <span className="truncate">{item.name}</span>
             </Link>
           );
         })}
-        
-        <div className="flex-1"></div>
-
-        {/* Settings */}
-        <Link href="#" className="flex items-center px-3 py-2 text-blue-300/70 border-l-2 border-transparent hover:bg-blue-900/50 hover:text-white rounded transition-all">
-          <span className="text-[10px] font-medium tracking-wide">Settings</span>
-        </Link>
       </nav>
 
-      {/* User Profile Text */}
-      <div className="pt-3 border-t border-blue-900 w-full px-3 mt-2">
-        <div className="w-full bg-blue-900/40 rounded py-1 flex items-center justify-center cursor-pointer hover:bg-blue-800 transition-colors border border-blue-800/30">
-          <span className="text-[9px] font-medium text-blue-200">User: Admin</span>
-        </div>
+      {/* Footer System Status */}
+      <div className="p-4 border-t border-slate-800">
+        <button 
+          onClick={() => signOut({ callbackUrl: '/login' })}
+          className="flex items-center space-x-2 text-[11px] font-medium text-slate-500 hover:text-red-400 transition-colors w-full"
+        >
+          <LogOut className="h-4 w-4 shrink-0" />
+          <span className="truncate">Secure Logout</span>
+        </button>
       </div>
-    </aside>
+    </div>
   );
 }

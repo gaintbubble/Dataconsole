@@ -27,7 +27,8 @@ export default function ShortNamesPage() {
   const fetchMappings = async () => {
     setIsLoading(true);
     try {
-      const res = await fetch('/api/mappings');
+      // Added { cache: 'no-store' } to permanently prevent browser caching
+      const res = await fetch('/api/mappings', { cache: 'no-store' });
       if (res.ok) {
         const data = await res.json();
         setMappings(data);
@@ -66,7 +67,6 @@ export default function ShortNamesPage() {
         setSequence(""); 
         fetchMappings();
       } else {
-        // NEW: Show the exact error message from the backend (e.g., "Sequence #2 is already used")
         const errData = await res.json();
         alert(errData.error || "Failed to save. It might already exist.");
       }
@@ -79,7 +79,7 @@ export default function ShortNamesPage() {
     setCategory(mapping.category);
     setOriginalName(mapping.originalName);
     setShortName(mapping.shortName);
-    setSequence(mapping.sequence || ""); 
+    setSequence(mapping.sequence || "");
     
     if (mapping.category === "Parameter") {
       setActiveDepartment(mapping.department || "Biochemistry");
@@ -114,15 +114,13 @@ export default function ShortNamesPage() {
         m.shortName.toLowerCase().includes(searchLower)
       );
     })
-    // NEW: Strictly sort the visible table by Sequence Number
     .sort((a, b) => {
       if (category === "Parameter") {
-        // If a sequence is missing/null, push it to the very bottom (9999)
         const seqA = a.sequence !== null ? a.sequence : 9999;
         const seqB = b.sequence !== null ? b.sequence : 9999;
         return seqA - seqB; 
       }
-      return 0; // Don't touch the sorting for Wards, Results, etc.
+      return 0; 
     });
 
   return (
@@ -178,7 +176,6 @@ export default function ShortNamesPage() {
             </select>
           </div>
 
-          {/* Sequence (Only show on 'Parameter' tab) */}
           {category === "Parameter" && (
             <div className="w-[60px]">
               <label className="block text-[10px] font-bold text-slate-700 mb-1">Seq #</label>
@@ -236,7 +233,6 @@ export default function ShortNamesPage() {
         <table className="w-full text-left border-collapse text-[11px]">
           <thead className="sticky top-0 z-10 shadow-sm bg-slate-800 text-slate-100">
             <tr>
-              {/* Dynamic Headers based on active tab */}
               {category === "Parameter" && (
                 <th className="border border-slate-600 px-4 py-2 font-semibold w-16 text-center">Seq</th>
               )}
@@ -254,13 +250,11 @@ export default function ShortNamesPage() {
               filteredMappings.map((m) => (
                 <tr key={m.id} className="hover:bg-blue-50 transition-none">
                   
-                  {/* Dynamic Columns based on active tab */}
                   {category === "Parameter" && (
                     <td className="border border-slate-200 px-4 py-1.5 font-bold text-center text-slate-800">
                       {m.sequence || "-"}
                     </td>
                   )}
-
                   <td className="border border-slate-200 px-4 py-1.5 text-slate-800">{m.originalName}</td>
                   <td className="border border-slate-200 px-4 py-1.5 font-bold text-blue-800">{m.shortName}</td>
                   

@@ -591,11 +591,16 @@ export default function PrintBoxPage() {
           </div>
         </div>
 
-        <div className="relative shrink-0 ml-3">
-          <Search className="absolute left-1.5 top-1 h-3 w-3 text-slate-400" />
-          <input type="text" placeholder="Search..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="pl-5 pr-2 py-1 border border-slate-300 rounded-sm focus:outline-none focus:border-blue-500 w-32 text-black text-[10px]" />
+        <div className="relative shrink-0 ml-auto flex items-center">
+          <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-3 w-3 text-slate-400 pointer-events-none" />
+          <input 
+            type="text" 
+            placeholder="Search..." 
+            value={searchTerm} 
+            onChange={(e) => setSearchTerm(e.target.value)} 
+            className="pl-6 pr-2 py-1.5 border border-slate-300 rounded-sm focus:outline-none focus:border-blue-500 w-40 text-black text-[10px] transition-all" 
+          />
         </div>
-
       </div>
 
       {/* --- SCROLLABLE DATA AREA --- */}
