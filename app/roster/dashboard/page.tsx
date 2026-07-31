@@ -3,18 +3,21 @@ import { prisma } from "@/app/lib/prisma";
 import { LayoutDashboard, Users, Clock, AlertCircle } from "lucide-react";
 import DashboardFilters from "./components/DashboardFilters";
 
+export const dynamic = 'force-dynamic';
+
 export default async function RosterDashboard({
   searchParams,
 }: {
-  searchParams: { [key: string]: string | string[] | undefined };
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
   const departments = await prisma.department.findMany({
     orderBy: { name: 'asc' }
   });
 
+  const params = await searchParams;
   const todayStr = new Date().toISOString().split('T')[0];
-  const dateStr = typeof searchParams.date === 'string' ? searchParams.date : todayStr;
-  const deptFilter = typeof searchParams.dept === 'string' ? searchParams.dept : "";
+  const dateStr = typeof params.date === 'string' ? params.date : todayStr;
+  const deptFilter = typeof params.dept === 'string' ? params.dept : "";
 
   // 1. Fetch Roster Records for the date
   const rosterQuery = {
