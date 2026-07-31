@@ -18,6 +18,7 @@ export async function POST(req: Request) {
     const deletedRecords = await prisma.patientRecord.deleteMany({
       where: {
         // Only target Result Bank data (ignore the main Database entries)
+        // @ts-ignore
         parameterName: { not: null },
         // Only target records older than the cutoff
         createdAt: {

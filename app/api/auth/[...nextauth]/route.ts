@@ -1,21 +1,23 @@
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
+import { prisma } from "@/app/lib/prisma";
 
 const handler = NextAuth({
   providers: [
     CredentialsProvider({
       name: "Credentials",
       credentials: {
-        email: { label: "Email", type: "email" },
+        username: { label: "Username", type: "text", placeholder: "admin" },
         password: { label: "Password", type: "password" }
       },
       async authorize(credentials) {
-        // Mock authentication updated with your requested credentials
-        if (credentials?.email === "centrallab@asram.com" && credentials?.password === "asram123") {
+        // Placeholder login logic
+        if (credentials?.username === "admin" && credentials?.password === "password") {
+          // We added the 'role' property here to satisfy your custom type definitions
           return { 
             id: "1", 
-            name: "Central Lab Admin", 
-            email: "centrallab@asram.com", 
+            name: "Admin User", 
+            email: "admin@labseven.com",
             role: "admin" 
           };
         }
@@ -23,13 +25,13 @@ const handler = NextAuth({
       }
     })
   ],
-  pages: {
-    signIn: '/login', 
-  },
   session: {
     strategy: "jwt",
   },
-  secret: process.env.NEXTAUTH_SECRET || "development-super-secret-key-123",
+  secret: process.env.NEXTAUTH_SECRET,
+  pages: {
+    // signIn: '/login', 
+  },
 });
 
 export { handler as GET, handler as POST };

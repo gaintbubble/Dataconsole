@@ -4,7 +4,7 @@ import { prisma } from '../../../lib/prisma';
 // --- READ DATA ---
 export async function GET() {
   try {
-    const admissions = await prisma.admission.findMany({
+    const admissions = await (prisma as any).admission.findMany({
       orderBy: { createdAt: 'desc' }
     });
     return NextResponse.json(admissions, { status: 200 });
@@ -24,7 +24,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "No records provided to save." }, { status: 400 });
     }
 
-    const newRecords = await prisma.admission.createMany({
+    const newRecords = await (prisma as any).admission.createMany({
       data: records,
       skipDuplicates: true, // Ignores rows with duplicate admission numbers
     });

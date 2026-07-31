@@ -1,7 +1,6 @@
 export const dynamic = 'force-dynamic';
-
 import { NextResponse } from 'next/server';
-import { prisma } from '../../lib/prisma'; // Make sure this path points to your prisma client
+import { prisma } from "@/app/lib/prisma"; // Make sure this path points to your prisma client
 
 export async function GET(request: Request) {
   try {

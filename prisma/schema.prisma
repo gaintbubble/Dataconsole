@@ -4,71 +4,147 @@ generator client {
 
 datasource db {
   provider = "postgresql"
+  // The url line has been removed from here!
 }
 
-// ------------------------------------------------------
-// MAIN PATIENT RECORDS (Used by Database & Result Bank Pages)
-// ------------------------------------------------------
+// ... keep all your other models exactly the same
+
 model PatientRecord {
-  id            String   @id @default(cuid())
-  slNo          String?
-  umrNo         String?
-  patientName   String?
-  age           String?
-  gender        String?
-  admnNo        String?
-  billNo        String?
-  parameterName String?
-  resultValue   String?
-  department    String?
+  id          String   @id @default(uuid())
+  firstName   String
+  lastName    String
+  dateOfBirth DateTime?
+  gender      String?
+  phone       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
-  // Custom columns mapped from your Excel files
-  isOd          String?
-  ward          String?
-  resultDate    String?
-  
-  // For the stripped date in the Result Bank
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  reports     Report[]
+  billings    Billing[]
 }
 
-// ------------------------------------------------------
-// ADMISSIONS TABLE (Used by your Admissions API/Page)
-// ------------------------------------------------------
-model Admission {
-  id            String   @id @default(cuid())
-  
-  // Made admnNo unique because your API uses `skipDuplicates: true`
-  admnNo        String   @unique 
-  
-  umrNo         String?
-  patientName   String?
-  department    String?
-  ward          String?
-  status        String?
-  
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-}
-
-// ------------------------------------------------------
-// SHORT NAME TRANSLATION DICTIONARY
-// ------------------------------------------------------
 model MappingDictionary {
-  id           String   @id @default(cuid())
-  category     String   // e.g., "Parameter", "Ward", "Result"
-  originalName String   // The exact text from the Excel file
-  shortName    String   // What you want it to change to
-
-  // Links a parameter to a Lab Department
-  department   String?  
-  
-  // NEW: Department-wise print sequence (1, 2, 3...)
+  id           String   @id @default(uuid())
+  category     String
+  originalName String
+  shortName    String
+  department   String?
   sequence     Int?
-  
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  // Ensures we don't accidentally create exact duplicates
-  @@unique([category, originalName]) 
+  @@unique([category, originalName])
+}
+
+model Report {
+  id                 String               @id @default(uuid())
+  patientId          String
+  status             String               @default("PENDING") 
+  notes              String?
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
+  
+  patient            PatientRecord        @relation(fields: [patientId], references: [id])
+  microbiologyResult MicrobiologyResult? 
+}
+
+model MicrobiologyResult {
+  id          String   @id @default(uuid())
+  reportId    String   @unique
+  sampleType  String
+  organism    String?
+  sensitivity String?
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  report      Report   @relation(fields: [reportId], references: [id], onDelete: Cascade)
+}
+
+model Billing {
+  id          String   @id @default(uuid())
+  patientId   String
+  totalAmount Float
+  status      String   @default("UNPAID")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  patient     PatientRecord @relation(fields: [patientId], references: [id])
+}
+
+// UPDATED ROSTER MODEL TO SUPPORT MATRIX FORMAT
+model Roster {
+  id         String   @id @default(uuid())
+  date       String   
+  department String
+  shiftName  String
+  empIds     String[] 
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([date, department, shiftName])
+}
+
+model Employee {
+  id           String   @id @default(uuid())
+  empId        String   @unique
+  sequence     Int      @default(0) 
+  name         String
+  department   String
+  status       String   @default("Active")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Shift {
+  id        String   @id @default(uuid())
+  sequence  Int      @default(0)
+  name      String
+  dailyTime String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Department {
+  id           String   @id @default(uuid())
+  name         String
+  code         String   @unique
+  shiftTimings Json     @default("[]") 
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Authorisation {
+  id              String   @id @default(uuid())
+  department      String
+  personName      String
+  designation     String
+  departmentTitle String
+  isDefault       Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model PublicHoliday {
+  id          String   @id @default(uuid())
+  name        String
+  date        DateTime
+  description String?
+  color       String   @default("#fed7aa") // Tailwind orange-200
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model SystemSetting {
+  id          String   @id @default("singleton")
+  orgName     String   @default("General Hospital")
+  address     String?
+  phone       String?
+  email       String?
+  description String?
+  logoUrl     String?  @db.Text
+  copyTo      String[] @default([])
+  showQrCode  Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }

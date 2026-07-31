@@ -1,16 +1,9 @@
-import { defineConfig } from "@prisma/config";
 import "dotenv/config";
-
-const directUrl = process.env.DIRECT_URL;
-
-if (!directUrl) {
-  throw new Error(
-    "❌ DIRECT_URL not found. Please check your .env file."
-  );
-}
+import { defineConfig, env } from "prisma/config";
 
 export default defineConfig({
+  schema: "prisma/schema.prisma",
   datasource: {
-    url: directUrl,
+    url: env("DIRECT_URL"),
   },
 });
