@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { usePathname, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
 import { 
   Users, 
@@ -20,10 +20,15 @@ import {
 
 export default function RosterLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const searchParams = useSearchParams();
-  const isViewMode = searchParams?.get('view') === 'true';
+  const [isViewMode, setIsViewMode] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(true);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+
+  React.useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setIsViewMode(new URLSearchParams(window.location.search).get('view') === 'true');
+    }
+  }, []);
 
   // Roster-specific navigation menu
   const rosterNavItems = [
