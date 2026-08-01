@@ -41,6 +41,7 @@ export default function RosterPage() {
   const [isExportingPDF, setIsExportingPDF] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
   const [isViewMode, setIsViewMode] = useState(false);
+  const [hasAutoExported, setHasAutoExported] = useState(false);
   
   const printRef = useRef<HTMLDivElement>(null);
 
@@ -400,6 +401,17 @@ export default function RosterPage() {
   const nonDefaultSig = useMemo(() => {
     return authorisations.find(a => a.department === selectedDept && !isActuallyDefault(a.isDefault));
   }, [authorisations, selectedDept]);
+
+  useEffect(() => {
+    if (isViewMode && isMounted && !isLoading && !hasAutoExported && Object.keys(assignments).length > 0) {
+      setHasAutoExported(true);
+      // Give the DOM a moment to fully render the assignments before taking the snapshot
+      const timer = setTimeout(() => {
+        generatePDF('save');
+      }, 1500);
+      return () => clearTimeout(timer);
+    }
+  }, [isViewMode, isMounted, isLoading, hasAutoExported, assignments]);
 
   return (
     <div className="p-4 bg-slate-100 relative print:h-auto">
