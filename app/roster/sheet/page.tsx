@@ -37,6 +37,7 @@ export default function RosterSheetPage() {
   const [isExportOpen, setIsExportOpen] = useState(false);
   const [isExportingPDF, setIsExportingPDF] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
+  const [isViewMode, setIsViewMode] = useState(false);
   
   const printRef = useRef<HTMLDivElement>(null);
 
@@ -58,6 +59,9 @@ export default function RosterSheetPage() {
 
   useEffect(() => {
     setIsMounted(true);
+    if (typeof window !== 'undefined') {
+      setIsViewMode(new URLSearchParams(window.location.search).get('view') === 'true');
+    }
   }, []);
 
   useEffect(() => {
@@ -203,6 +207,7 @@ export default function RosterSheetPage() {
 
 
   const openAssignmentModal = (e: React.MouseEvent, dateStr: string, shiftName: string, displayDate: string) => {
+    if (isViewMode) return;
     setValidationError(null); 
     
     for (const day of daysInMonth) {
@@ -485,7 +490,7 @@ export default function RosterSheetPage() {
       `}</style>
 
       {/* CONTROLS */}
-      <div className={`mb-3 flex flex-wrap items-center justify-between bg-white p-2 border border-slate-300 rounded shadow-sm gap-2 ${isExportingPDF ? 'hidden' : 'print:hidden'}`}>
+      <div className={`mb-3 flex flex-wrap items-center justify-between bg-white p-2 border border-slate-300 rounded shadow-sm gap-2 ${isExportingPDF || isViewMode ? 'hidden' : 'print:hidden'}`}>
         
         <div className="flex flex-wrap items-center gap-2">
           {/* Duty Person Signatory Selection */}
@@ -699,6 +704,7 @@ export default function RosterSheetPage() {
                                         className={`font-bold text-[11px] print:text-[16px] ${isRd ? 'text-yellow-600' : isOffShift ? 'text-red-600' : 'text-slate-800'}`} 
                                         title={`${staff?.name}${isRd ? ' (Rest Day)' : ''}`}
                                         onClick={(e) => {
+                                          if (isViewMode) return;
                                           if (isOffShift) {
                                             e.stopPropagation();
                                             setRdModalInfo({ id, realId, cellKey, isRd });
@@ -807,7 +813,7 @@ export default function RosterSheetPage() {
               {orgSettings?.showQrCode !== false && (
                 <div className="w-24 flex flex-col items-center">
                   {isMounted && (
-                    <QRCodeSVG value={`${window.location.origin}/roster/sheet?dept=${encodeURIComponent(selectedDept)}&month=${selectedMonth}&year=${selectedYear}`} size={100} />
+                    <QRCodeSVG value={`${window.location.origin}/roster/sheet?dept=${encodeURIComponent(selectedDept)}&month=${selectedMonth}&year=${selectedYear}&view=true`} size={100} />
                   )}
                   <span className="text-[8px] mt-1 text-slate-500 font-bold whitespace-nowrap">Scan for Digital Copy</span>
                 </div>

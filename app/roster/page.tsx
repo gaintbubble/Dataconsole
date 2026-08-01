@@ -40,6 +40,7 @@ export default function RosterPage() {
   const [isExportOpen, setIsExportOpen] = useState(false);
   const [isExportingPDF, setIsExportingPDF] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
+  const [isViewMode, setIsViewMode] = useState(false);
   
   const printRef = useRef<HTMLDivElement>(null);
 
@@ -54,6 +55,9 @@ export default function RosterPage() {
 
   useEffect(() => {
     setIsMounted(true);
+    if (typeof window !== 'undefined') {
+      setIsViewMode(new URLSearchParams(window.location.search).get('view') === 'true');
+    }
   }, []);
 
   useEffect(() => {
@@ -427,7 +431,7 @@ export default function RosterPage() {
         }
       `}</style>
       {/* CONTROLS */}
-      <div className={`mb-3 flex flex-wrap items-center justify-between bg-white p-2 border border-slate-300 rounded shadow-sm gap-2 ${isExportingPDF ? 'hidden' : 'print:hidden'}`}>
+      <div className={`mb-3 flex flex-wrap items-center justify-between bg-white p-2 border border-slate-300 rounded shadow-sm gap-2 ${isExportingPDF || isViewMode ? 'hidden' : 'print:hidden'}`}>
         
         <div className="flex items-center gap-2 shrink-0">
           <div className="flex items-center bg-slate-50 rounded-sm border border-slate-300 shadow-sm h-8">
@@ -655,6 +659,7 @@ export default function RosterPage() {
                           className={`border border-slate-200 print:border-black p-1 print:py-2 text-center text-[10px] print:text-[16px] ${isOff ? 'hover:bg-slate-100 cursor-pointer' : 'hover:bg-blue-100'} transition-colors ${cellBg} ${textColorClass}`}
                           style={customStyle}
                           onClick={() => {
+                            if (isViewMode) return;
                             if (isOff) {
                               const offShift = departmentShifts.find(s => 
                                 s.name.toUpperCase().includes('W/O') || 
@@ -698,7 +703,7 @@ export default function RosterPage() {
               {orgSettings?.showQrCode !== false && (
                 <div className="w-24 flex flex-col items-center">
                   {isMounted && (
-                    <QRCodeSVG value={`${window.location.origin}/roster?dept=${encodeURIComponent(selectedDept)}&month=${selectedMonth}&year=${selectedYear}`} size={100} />
+                    <QRCodeSVG value={`${window.location.origin}/roster?dept=${encodeURIComponent(selectedDept)}&month=${selectedMonth}&year=${selectedYear}&view=true`} size={100} />
                   )}
                   <span className="text-[8px] mt-1 text-slate-500 font-bold whitespace-nowrap">Scan for Digital Copy</span>
                 </div>
